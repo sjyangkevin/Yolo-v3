@@ -1,2 +1,1 @@
-# oodlib
-Yolo-based object detection library
+# Yolo-based object detection library - OODLib
