@@ -1,4 +1,5 @@
 from functools import wraps
+from functools import reduce
 
 from keras.initializers import random_normal
 from keras.layers import (Add, Concatenate, Conv2D, MaxPooling2D, UpSampling2D,
@@ -7,6 +8,12 @@ from keras.layers.advanced_activations import LeakyReLU
 from keras.layers.normalization import BatchNormalization
 from keras.regularizers import l2
 from utils.utils import compose
+
+def compose(*funcs):
+    if funcs:
+        return reduce(lambda f, g: lambda *a, **kw: g(f(*a, **kw)), funcs)
+    else:
+        raise ValueError('Composition of empty sequence not supported.')
 
 @wraps(Conv2D)
 def DarknetConv2D(*args, **kwargs):
