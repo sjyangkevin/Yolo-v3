@@ -1,13 +1,12 @@
 from functools import wraps
 from functools import reduce
 
-from keras.initializers import random_normal
-from keras.layers import (Add, Concatenate, Conv2D, MaxPooling2D, UpSampling2D,
-                          ZeroPadding2D)
-from keras.layers.advanced_activations import LeakyReLU
-from keras.layers.normalization import BatchNormalization
-from keras.regularizers import l2
-from utils.utils import compose
+import tensorflow as tf
+from tensorflow.python.keras.initializers.initializers_v1 import RandomNormal
+from tensorflow.python.keras.layers.advanced_activations import LeakyReLU
+from tensorflow.python.keras.layers.convolutional import Conv2D, ZeroPadding2D
+from tensorflow.python.keras.layers.merge import Add
+from tensorflow.python.keras.layers.normalization import BatchNormalization
 
 def compose(*funcs):
     if funcs:
@@ -18,7 +17,7 @@ def compose(*funcs):
 @wraps(Conv2D)
 def DarknetConv2D(*args, **kwargs):
     # darknet_conv_kwargs = {'kernel_regularizer': l2(5e-4)}
-    darknet_conv_kwargs = {'kernel_initializer' : random_normal(stddev=0.02)}
+    darknet_conv_kwargs = {'kernel_initializer' : RandomNormal(stddev=0.02)}
     darknet_conv_kwargs['padding'] = 'valid' if kwargs.get('strides')==(2,2) else 'same'
     darknet_conv_kwargs.update(kwargs)
     return Conv2D(*args, **darknet_conv_kwargs)
