@@ -364,7 +364,7 @@ def yolo_predict(inputs, n_classes, anchors, img_size, max_output_size, iou_thre
     )
     
     return boxes_dicts
-
+    
 def load_images(img_names, model_size):
     """
     load images in a 4D array
