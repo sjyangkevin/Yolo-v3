@@ -1,1 +1,1 @@
-# Yolo-based object detection library
+# An object detection library
