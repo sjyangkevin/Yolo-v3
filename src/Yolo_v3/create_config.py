@@ -18,7 +18,7 @@ config['yolo'] = {
     'class_name_dir': '../../data/coco.names',
     'font_dir': '../../data/futur.ttf',
     'output_dir': '../../data/Yolo_v3/outputs',
-    'max_output_size': 10,
+    'max_output_size': 25,
     'iou_threshold': 0.5,
     'confidence_threshold': 0.5
 }
