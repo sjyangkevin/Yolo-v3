@@ -1,3 +1,4 @@
+import os
 import tensorflow as tf
 from configparser import ConfigParser
 import argparse
@@ -8,7 +9,7 @@ parser = ConfigParser()
 parser.read('config.ini')
 
 argparser = argparse.ArgumentParser(description='Yolo v3 Object Detection')
-argparser.add_argument('--input', type=str, help='Input Image')
+argparser.add_argument('--input_dir', type=str, help='Input Image')
 
 class Yolo_v3:
     def __init__(self):
@@ -37,7 +38,7 @@ class Yolo_v3:
         model.load_weights(self.weight_path)
 
         images = load_images(
-            [inputs], 
+            inputs, 
             model_size=(self.model_size, self.model_size)
         )
 
@@ -58,7 +59,7 @@ class Yolo_v3:
         )
 
         draw_boxes(
-            [inputs], 
+            inputs, 
             preds, 
             self.class_names, 
             (self.model_size, self.model_size)
@@ -74,7 +75,8 @@ class Yolo_v3:
 if __name__ == '__main__':
     Yolov3 = Yolo_v3()
     args = argparser.parse_args()
-    input_image = args.input
 
-    Yolov3.predict(input_image)
+    inputs = os.listdir(args.input_dir)
+    inputs = [os.path.join(args.input_dir, img_dir) for img_dir in inputs]
+    Yolov3.predict(inputs)
 
