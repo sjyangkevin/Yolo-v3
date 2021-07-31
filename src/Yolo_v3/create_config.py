@@ -17,7 +17,7 @@ config['yolo'] = {
     'anchor_dir': '../../data/Yolo_v3/anchors.txt',
     'class_name_dir': '../../data/coco.names',
     'font_dir': '../../data/futur.ttf',
-    'output_dir': '../../data/Yolo_v3/outputs',
+    'output_dir': '../../data/Yolo_v3/outputs/street_video.avi',
     'max_output_size': 25,
     'iou_threshold': 0.5,
     'confidence_threshold': 0.5

@@ -19,6 +19,12 @@ def load_anchors(file_name):
         results.append((int(anchor[0]), int(anchor[1])))
     return results
 
+def load_single_frame(frame, model_size):
+    img = Image.fromarray(frame)
+    img = img.resize(size=model_size)
+    img = np.array(img, dtype=np.float32)
+    img = np.expand_dims(img, axis=0)
+    return img
 
 def load_images(img_names, model_size):
     """
@@ -118,7 +124,7 @@ def non_max_suppression(inputs, n_classes, max_output_size, iou_threshold, confi
     
     return boxes_dicts
 
-def draw_boxes(img_names, boxes_dicts, class_names, model_size):
+def draw_boxes(img_names, boxes_dicts, class_names, model_size, save_output=False):
     """
     Draws detected boxes
     
@@ -158,4 +164,48 @@ def draw_boxes(img_names, boxes_dicts, class_names, model_size):
                         fill=tuple(color)
                     )
                     draw.text((x0, y0 - text_size[1]), text, fill='black', font=font)
-        img.save(os.path.join(OUTPUT_DIR, os.path.basename(img_name)))
+        if save_output:
+            img.save(os.path.join(OUTPUT_DIR, os.path.basename(img_name)))
+    return img
+
+def draw_boxes_on_frame(frame, boxes_dicts, class_names, model_size):
+    """
+    Draws detected boxes
+    
+    args:
+        img_names: a list of input images names
+        boxes_dict: a class-to-boxes dictionary
+        class_names: a class names list
+        model_size: input size of model
+    """
+    # coco dataset has 80 classes -> a color for each class
+    colors = ((np.array(color_palette("hls", 80)) * 255)).astype(np.uint8)
+    img = Image.fromarray(frame)
+    draw = ImageDraw.Draw(img)
+    font = ImageFont.truetype(font=FONT_DIR, size=(img.size[0] + img.size[1]) // 100)
+    boxes_dict = boxes_dicts[0]
+
+    resize_factor = \
+    (img.size[0] / model_size[0], img.size[1] / model_size[1])
+    
+    for cls in range(len(class_names)):
+        boxes = boxes_dict[cls]
+        if np.size(boxes) != 0:
+            color = colors[cls]
+            for box in boxes:
+                xy, confidence = box[:4], box[4]
+                xy = [xy[i] * resize_factor[i % 2] for i in range(4)]
+                x0, y0 = xy[0], xy[1]
+                thickness = (img.size[0] + img.size[1]) // 200
+                for t in np.linspace(0, 1, thickness):
+                    xy[0], xy[1] = xy[0] + t, xy[1] + t
+                    xy[2], xy[3] = xy[2] - t, xy[3] - t
+                    draw.rectangle(xy, outline=tuple(color))
+                text = '{} {:.1f}%'.format(class_names[cls], confidence * 100)
+                text_size = draw.textsize(text, font=font)
+                draw.rectangle(
+                    [x0, y0 - text_size[1], x0 + text_size[0], y0],
+                    fill=tuple(color)
+                )
+                draw.text((x0, y0 - text_size[1]), text, fill='black', font=font)
+    return img
