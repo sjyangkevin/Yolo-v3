@@ -1,7 +1,7 @@
 import tensorflow as tf
 from configparser import ConfigParser
 from darknet53 import batch_norm, conv2d_fixed_padding, darknet53
-from utils import build_boxes, non_max_suppression
+from utils import build_boxes, non_max_suppression, preprocess_true_boxes
 
 parser = ConfigParser()
 parser.read('config.ini')
@@ -180,3 +180,18 @@ def yolo_predict(inputs, n_classes, anchors, img_size, max_output_size, iou_thre
     )
     
     return boxes_dicts
+
+def yolo_loss(args, anchors, num_classes, ignore_threshold=.5, print_loss=False):
+    """
+    Return yolo_loss tensor
+
+    yolo_outputs: list of tensor, the output of yolo_layer
+    y_true: list of array, the output of preprocess_true_boxes
+    anchors: array, shape = (N, 2), wh
+    num_classes: integer
+    ignore_threshold: float, the iou threshold whether to ignore object confidence loss
+
+    return:
+        loss: tensor, shape=(1, )
+    """
+    pass
