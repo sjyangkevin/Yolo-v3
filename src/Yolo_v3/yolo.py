@@ -1,7 +1,9 @@
 import tensorflow as tf
 from configparser import ConfigParser
+
+from tensorflow.python.framework.dtypes import DType
 from darknet53 import batch_norm, conv2d_fixed_padding, darknet53
-from utils import build_boxes, non_max_suppression, preprocess_true_boxes
+from utils import build_boxes, non_max_suppression, box_iou
 
 parser = ConfigParser()
 parser.read('config.ini')
@@ -111,7 +113,6 @@ def yolo_head(inputs, n_classes, anchors, img_size, data_format):
         # make it channel last
         inputs = tf.transpose(inputs, [0, 2, 3, 1])
     # adjust the input shapes to (batch_size, total_num_pred_box, 4 + 1 + n_classes)
- 
     inputs = tf.reshape(inputs, [-1, n_anchors * grid_shape[0] * grid_shape[1], 5 + n_classes])
     
     # the scale between the original input size and feature map size
@@ -156,7 +157,7 @@ def yolo_head(inputs, n_classes, anchors, img_size, data_format):
     
     # back to shape (batch_size, total_num_pred_box, 5 + num_classes)
     inputs = tf.concat([box_centers, box_shapes, confidence, classes], axis=-1)
-    
+
     return inputs
 
 def yolo_predict(inputs, n_classes, anchors, img_size, max_output_size, iou_threshold, confidence_threshold, data_format):
@@ -181,7 +182,7 @@ def yolo_predict(inputs, n_classes, anchors, img_size, max_output_size, iou_thre
     
     return boxes_dicts
 
-def yolo_loss(args, anchors, num_classes, ignore_threshold=.5, print_loss=False):
+def yolo_loss(args, anchors, num_classes, ignore_thresh=.5, print_loss=False):
     """
     Return yolo_loss tensor
 
@@ -189,9 +190,76 @@ def yolo_loss(args, anchors, num_classes, ignore_threshold=.5, print_loss=False)
     y_true: list of array, the output of preprocess_true_boxes
     anchors: array, shape = (N, 2), wh
     num_classes: integer
-    ignore_threshold: float, the iou threshold whether to ignore object confidence loss
+    ignore_thresh: float, the iou threshold whether to ignore object confidence loss
 
     return:
         loss: tensor, shape=(1, )
     """
-    pass
+    num_layers = len(anchors) // 3
+    yolo_outputs = args[:num_layers]
+    y_true = args[num_layers:]
+    anchor_mask = [[6,7,8], [3,4,5], [0,1,2]]
+    input_shape = tf.cast(tf.shape(yolo_outputs[0])[1:3] * 32, tf.dtypes.DType(y_true[0]))
+    grid_shapes = [tf.cast(tf.shape(yolo_outputs[l])[1:3], tf.dtypes.DType(y_true[0])) for l in range(num_layers)]
+    loss = 0
+    m = tf.shape(yolo_outputs[0])[0] # batch size, tensor
+    mf = tf.cast(m, tf.dtypes.DType(yolo_outputs[0]))
+
+    for l in range(num_layers):
+        object_mask = y_true[l][..., 4:5]
+        true_class_probs = y_true[l][..., 5:]
+
+        # grid - grid coordinate
+        # raw_pred - unprocessed ouptut (m, 13, 13, 3, 85)
+        # pred_xy - (m, 13, 13, 3, 2)
+        # pred_wh - (m, 13, 13, 3, 2)
+        grid, raw_pred, pred_xy, pred_wh = yolo_head(yolo_outputs[l],
+             anchors[anchor_mask[l]], num_classes, input_shape, calc_loss=True)
+        pred_box = tf.concat([pred_xy, pred_wh])
+
+        # Darknet raw box to calculate loss.
+        # map x, y predict to grid coordinate, and remove grid from that -> offsets
+        raw_true_xy = y_true[l][..., :2]*grid_shapes[l][::-1] - grid
+        raw_true_wh = tf.keras.backend.log(y_true[l][..., 2:4] / anchors[anchor_mask[l]] * input_shape[::-1])
+        # like a ternary if ... else
+        raw_true_wh = tf.keras.backend.switch(object_mask, raw_true_wh, tf.zeros_like(raw_true_wh)) # avoid log(0)=-inf
+        box_loss_scale = 2 - y_true[l][...,2:3]*y_true[l][...,3:4]
+
+        # Find ignore mask, iterate over each of batch.
+        ignore_mask = tf.TensorArray(tf.dtypes.DType(y_true[0]), size=1, dynamic_size=True)
+        object_mask_bool = tf.cast(object_mask, 'bool')
+        
+        def loop_body(b, ignore_mask):
+            true_box = tf.boolean_mask(y_true[l][b,...,0:4], object_mask_bool[b,...,0])
+            iou = box_iou(pred_box[b], true_box)
+            best_iou = tf.keras.backend.max(iou, axis=-1)
+            ignore_mask = ignore_mask.write(b, tf.cast(best_iou<ignore_thresh, tf.dtypes.DType(true_box)))
+            return b+1, ignore_mask
+        
+        _, ignore_mask = tf.while_loop(lambda b,*args: b<m, loop_body, [0, ignore_mask])
+        ignore_mask = ignore_mask.stack()
+        ignore_mask = tf.keras.backend.expand_dims(ignore_mask, -1)
+
+        # binary_crossentropy is helpful to avoid exp overflow.
+        xy_loss = object_mask * box_loss_scale * tf.keras.backend.binary_crossentropy(raw_true_xy, raw_pred[...,0:2], from_logits=True)
+        wh_loss = object_mask * box_loss_scale * 0.5 * tf.math.square(raw_true_wh-raw_pred[...,2:4])
+        confidence_loss = object_mask * tf.keras.backend(object_mask, raw_pred[...,4:5], from_logits=True)+ \
+            (1-object_mask) * tf.keras.backend(object_mask, raw_pred[...,4:5], from_logits=True) * ignore_mask
+        class_loss = object_mask * tf.keras.backend.binary_crossentropy(true_class_probs, raw_pred[...,5:], from_logits=True)
+
+        xy_loss = tf.keras.backend.sum(xy_loss) / mf
+        wh_loss = tf.keras.backend.sum(wh_loss) / mf
+        confidence_loss = tf.keras.backend.sum(confidence_loss) / mf
+        class_loss = tf.keras.backend.sum(class_loss) / mf
+        loss += xy_loss + wh_loss + confidence_loss + class_loss
+
+        if print_loss:
+            loss = tf.print(loss, [loss, xy_loss, wh_loss, confidence_loss, class_loss, tf.keras.backend.sum(ignore_mask)], message='loss: ')
+        return loss
+
+
+
+
+
+
+
