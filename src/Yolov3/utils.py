@@ -1,3 +1,15 @@
+
+#================================================================
+#
+#   File name         : utils.py
+#   Author            : Shijin Yang
+#   Created date      : 2021-08-11
+#   Website           : https://github.com/sjyangkevin/ODLib
+#   Modified based on : https://github.com/pythonlessons/TensorFlow-2.x-YOLOv3
+#   Original Author   : PyLessons
+#
+#================================================================
+
 from multiprocessing import Process, Queue, Pipe
 import cv2
 import time

@@ -1,11 +1,12 @@
+
 #================================================================
 #
-#   File name   : configs.py
-#   Author      : PyLessons
-#   Created date: 2020-08-18
-#   Website     : https://pylessons.com/
-#   GitHub      : https://github.com/pythonlessons/TensorFlow-2.x-YOLOv3
-#   Description : yolov3 configuration file
+#   File name         : config.py
+#   Author            : Shijin Yang
+#   Created date      : 2021-08-11
+#   Website           : https://github.com/sjyangkevin/ODLib
+#   Modified based on : https://github.com/pythonlessons/TensorFlow-2.x-YOLOv3
+#   Original Author   : PyLessons
 #
 #================================================================
 
