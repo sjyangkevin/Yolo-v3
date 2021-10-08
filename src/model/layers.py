@@ -49,3 +49,48 @@ def residual_block(inputs, filters, training, data_format, strides=1):
     inputs += shortcut
     
     return inputs
+
+def upsample(inputs, out_shape, data_format):
+    if data_format == 'channels_first':
+        inputs = tf.transpose(inputs, [0, 2, 3, 1])
+        new_height = out_shape[3]
+        new_width = out_shape[2]
+    else:
+        new_height = out_shape[2]
+        new_width = out_shape[1]
+        
+    inputs = tf.image.resize(inputs, (new_height, new_width), method='nearest')
+    
+    if data_format == 'channels_first':
+        inputs = tf.transpose(inputs, [0, 3, 1, 2])
+    
+    return inputs
+
+def yolo_conv_block(inputs, filters, training, data_format):
+    x = conv2d_fixed_padding(inputs, filters=filters, kernel_size=1, data_format=data_format)
+    x = batch_norm(x, training=training, data_format=data_format)
+    x = LeakyReLU(leakyrelu_alpha)(x)
+    
+    x = conv2d_fixed_padding(x, filters=2*filters, kernel_size=3, data_format=data_format)
+    x = batch_norm(x, training=training, data_format=data_format)
+    x = LeakyReLU(leakyrelu_alpha)(x)
+    
+    x = conv2d_fixed_padding(x, filters=filters, kernel_size=1, data_format=data_format)
+    x = batch_norm(x, training=training, data_format=data_format)
+    x = LeakyReLU(leakyrelu_alpha)(x)
+    
+    x = conv2d_fixed_padding(x, filters=2*filters, kernel_size=3, data_format=data_format)
+    x = batch_norm(x, training=training, data_format=data_format)
+    x = LeakyReLU(leakyrelu_alpha)(x)
+    
+    x = conv2d_fixed_padding(x, filters=filters, kernel_size=1, data_format=data_format)
+    x = batch_norm(x, training=training, data_format=data_format)
+    x = LeakyReLU(leakyrelu_alpha)(x)
+    
+    route = x
+    
+    x = conv2d_fixed_padding(x, filters=2*filters, kernel_size=3, data_format=data_format)
+    x = batch_norm(x, training=training, data_format=data_format)
+    x = LeakyReLU(leakyrelu_alpha)(x)
+    
+    return [route, x]
