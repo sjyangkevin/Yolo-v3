@@ -1,9 +1,9 @@
 # An object detection library
 
-### test on image
+### Image Result
 
-![street level detection](https://github.com/sjyangkevin/ODLib/blob/main/data/Yolo_v3/outputs/car-image.jpeg)
+![street level detection](https://github.com/sjyangkevin/Yolo-v3/blob/main/src/data/demo/car.jpeg)
 
-### test on video
+### Video Result
 
-![street level detection_video](https://github.com/sjyangkevin/ODLib/blob/main/data/Yolo_v3/outputs/street_video_tiny.gif)
+![street level detection_video](https://github.com/sjyangkevin/Yolo-v3/blob/main/src/data/demo/video-demo.gif)
