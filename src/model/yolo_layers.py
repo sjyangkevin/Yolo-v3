@@ -91,4 +91,4 @@ def yolo_layer(inputs, n_classes, n_anchors, training, data_format):
 #     for feat in outputs:
 #         print(feat.shape)
 
-    # plot_model(model, to_file='model.png', show_shapes=True)
+#     plot_model(model, to_file='model.png', show_shapes=True)
