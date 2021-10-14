@@ -167,9 +167,9 @@ class Dataset(Sequence):
                         k = self.anchors_mask[l].index(n)
                         c = true_boxes[b, t, 4].astype('int32') # the class label
                         # coordinates
-                        y_true[l][b, j, i, k, 0:4] = true_boxes[b, t, 0:4]
+                        y_true[l][b, j, i, k, 0:4]   = true_boxes[b, t, 0:4]
                         # confidence score
-                        y_true[l][b, j, i, k, 4]   = 1
+                        y_true[l][b, j, i, k, 4]     = 1
                         # class one-hot encode vector
                         y_true[l][b, j, i, k, 5 + c] = 1
         
