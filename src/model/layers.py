@@ -1,6 +1,6 @@
 import tensorflow as tf
 from tensorflow.keras.layers import Conv2D, BatchNormalization, LeakyReLU
-from config import bn_momentum, bn_epsilon, leakyrelu_alpha
+from model.config import bn_momentum, bn_epsilon, leakyrelu_alpha
 
 def batch_norm(inputs, training, data_format):
     return BatchNormalization(

@@ -1,5 +1,8 @@
 import numpy as np
 from PIL import Image
+import tensorflow as tf
+from tensorflow.keras.backend import clear_session
+from tensorflow.python.keras.backend import dtype
 
 def get_classes(filepath):
     with open(filepath, encoding='utf-8') as f:
@@ -43,6 +46,7 @@ def resize_image(image, size, pad):
     else:
         new_image = image.resize((w, h), Image.BICUBIC)
     return new_image
+
 
 # if __name__ == "__main__":
     # class_name_file = "src/data/coco/coco_classes.txt"

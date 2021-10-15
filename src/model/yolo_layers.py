@@ -1,8 +1,9 @@
 import tensorflow as tf
 from tensorflow.keras.layers import LeakyReLU, Conv2D
-from layers import conv2d_fixed_padding, batch_norm, upsample
-from backbone import darknet53
-from config import leakyrelu_alpha
+from tensorflow.keras.models import Model
+from model.layers import conv2d_fixed_padding, batch_norm, upsample
+from model.backbone import darknet53
+from model.config import leakyrelu_alpha
 
 def yolo_conv_block(inputs, filters, training, data_format):
     x = conv2d_fixed_padding(inputs, filters=filters, kernel_size=1, data_format=data_format)
@@ -76,19 +77,4 @@ def yolo_layer(inputs, n_classes, n_anchors, training, data_format):
                                      use_bias=True,
                                      data_format=data_format)(x)
     
-    return [feat1, feat2, feat3]
-
-# if __name__ == "__main__":
-#     from tensorflow.keras.utils import plot_model
-#     from tensorflow.keras.layers import Input
-#     from tensorflow.keras import Model
-#     from config import n_classes, n_anchors, training, data_format
-
-#     inputs = Input((416, 416, 3))
-#     outputs = yolo_layer(inputs, n_classes, n_anchors, training, data_format)
-#     model = Model(inputs=inputs, outputs=outputs)
-    
-#     for feat in outputs:
-#         print(feat.shape)
-
-#     plot_model(model, to_file='model.png', show_shapes=True)
+    return Model(inputs, [feat1, feat2, feat3])

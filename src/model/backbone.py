@@ -1,6 +1,6 @@
 from tensorflow.keras.layers import LeakyReLU
-from layers import batch_norm, conv2d_fixed_padding, residual_block
-from config import leakyrelu_alpha
+from model.layers import batch_norm, conv2d_fixed_padding, residual_block
+from model.config import leakyrelu_alpha
 
 def darknet53(inputs, training, data_format):
     """create darknet53 model for feature extraction"""
