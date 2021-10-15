@@ -1,24 +1,21 @@
-from functools import partial
 import os
-from re import L
 import numpy as np
 import scipy.signal
 import tensorflow as tf
 from tensorflow.keras import backend as K
+from tensorflow.keras import optimizers
 from tensorflow.keras.layers import Lambda, Input
 from tensorflow.keras.models import Model
 from tensorflow.keras.callbacks import EarlyStopping, TensorBoard
 from tensorflow.keras.optimizers import Adam
-from tensorflow.python.ops.gen_batch_ops import batch
-
 from model.yolo_layers import yolo_layer
 from loss.loss_fn import loss_fn
 from loader.dataloader import Dataset as YoloDataset
 from utils.utils import get_anchors, get_classes
-
 import matplotlib.pyplot as plt
 import warnings
-
+from functools import partial
+from tqdm import tqdm
 import config as cfg
 
 class LossHistory(tf.keras.callbacks.Callback):
@@ -161,8 +158,64 @@ def create_train_model(model, input_shape, num_classes, anchors, anchors_mask):
     model = Model([model.input, *y_true], model_loss)
     return model
 
-def fit_one_epoch():
-    pass
+def get_train_step_fn(input_shape, anchors, anchors_mask, num_classes):
+    @tf.function
+    def train_step(imgs, targets, model, optimizer):
+        with tf.GradientTape() as tape:
+            feat1, feat2, feat3 = model(imgs, training=True)
+            args = [feat1, feat2, feat3] + targets
+            loss_value = loss_fn(args, input_shape, anchors, anchors_mask, num_classes)
+            loss_value = tf.reduce_sum(model.losses) + loss_value
+        grads = tape.gradient(loss_value, model.trainable_variables)
+        optimizer.apply_gradients(zip(grads, model.trainable_variablces))
+        return loss_value
+    return train_step
+
+def fit_one_epoch(model, loss_history, optimizer, epoch, epoch_step, epoch_step_val, gen, gen_val, Epoch, input_shape, anchors, anchors_mask, num_classes):
+    train_step = get_train_step_fn(input_shape, anchors, anchors_mask, num_classes)
+    loss       = 0
+    val_loss   = 0
+    print('Start Training ...')
+    with tqdm(total=epoch_step,desc=f'Epoch {epoch + 1}/{Epoch}',postfix=dict,mininterval=0.3) as pbar:
+        for iteration, batch in enumerate(gen):
+            if iteration >= epoch_step:
+                break
+            images, target0, target1, target2 = batch[0], batch[1], batch[2], batch[3]
+            targets = [target0, target1, target2]
+            targets = [tf.convert_to_tensor(target) for target in targets]
+            loss_value = train_step(images, targets, model, optimizer)
+            loss = loss + loss_value
+
+            pbar.set_postfix(**{'total_loss': float(loss) / (iteration + 1), 
+                                'lr'        : optimizer._decayed_lr(tf.float32).numpy()})
+            pbar.update(1)
+    print('Finish Train')
+
+    print('Start Validation ...')
+    with tqdm(total=epoch_step_val, desc=f'Epoch {epoch + 1}/{Epoch}',postfix=dict,mininterval=0.3) as pbar:
+        for iteration, batch in enumerate(gen_val):
+            if iteration >= epoch_step_val:
+                break
+
+            images, target0, target1, target2 = batch[0], batch[1], batch[2], batch[3]
+            targets     = [target0, target1, target2]
+            targets     = [tf.convert_to_tensor(target) for target in targets]
+
+            feat1, feat2, feat3 = model(images)
+            args        = [feat1, feat2, feat3] + targets
+            loss_value  = loss_fn(args, input_shape, anchors, anchors_mask, num_classes)
+            loss_value  = tf.reduce_sum(model.losses) + loss_value
+            val_loss = val_loss + loss_value
+
+            pbar.set_postfix(**{'total_loss': float(val_loss) / (iteration + 1)})
+            pbar.update(1)
+    print('Finish Validation')
+
+    logs = {'loss': loss.numpy() / epoch_step, 'val_loss': val_loss.numpy() / epoch_step_val}
+    loss_history.on_epoch_end([], logs)
+    print('Epoch:'+ str(epoch+1) + '/' + str(Epoch))
+    print('Total Loss: %.3f || Val Loss: %.3f ' % (loss / epoch_step, val_loss / epoch_step_val))
+    model.save_weights('logs/ep%03d-loss%.3f-val_loss%.3f.h5' % (epoch + 1, loss / epoch_step, val_loss / epoch_step_val))
 
 if __name__ == "__main__":
 
