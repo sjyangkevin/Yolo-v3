@@ -5,6 +5,8 @@ from PIL import Image
 import numpy as np
 from tensorflow.keras.utils import Sequence
 from utils.utils import convert_color, preprocess_input
+# config from root directory
+import config as cfg
 
 class YoloDatasets(Sequence):
     def __init__(self, annotation_lines, input_shape, anchors, batch_size, num_classes, anchors_mask, train):
@@ -61,7 +63,7 @@ class YoloDatasets(Sequence):
     def on_epoch_begin(self):
         shuffle(self.annotation_lines)
 
-    def get_data(self, annotation_line, input_shape, max_boxes=100):
+    def get_data(self, annotation_line, input_shape, max_boxes=cfg.max_boxes):
         # extract the image path, and create an PIL image from annotation
         line  = annotation_line.split()
         image = Image.open(line[0])
@@ -138,7 +140,7 @@ class YoloDatasets(Sequence):
         valid_mask = boxes_wh[..., 0] > 0
 
         for b in range(m): # for every box in batch
-            wh = boxes_wh[b, valid_mask]
+            wh = boxes_wh[b, valid_mask[b]]
             if len(wh) == 0:
                 continue
             

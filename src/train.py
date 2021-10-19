@@ -10,23 +10,24 @@ from utils.loss import loss_fn
 from utils.loader import YoloDatasets
 from utils.utils import get_anchors, get_classes
 from utils.callbacks import ExponentDecayScheduler, LossHistory, ModelCheckpoint
+import config as cfg
 
 import os
 
 if __name__ == "__main__":
     eager_exec          = False
     
-    train_annotation_path = ""
-    valid_annotation_path = ""
+    train_annotation_path = cfg.train_annotation_path
+    valid_annotation_path = cfg.valid_annotation_path
 
-    classes_path        = "data/voc/voc_classes.txt"
-    anchors_path        = "data/yolov3/anchors.txt"
-    anchors_mask        = [[6, 7, 8], [3, 4, 5], [0, 1, 2]]
-    weights_path        = "data/yolov3/yolo_weights.h5"
-    logging_dir         = "data/logs"
-    input_shape         = [416, 416]
-    num_channels        = 3
-    data_format         = "channels_last"
+    classes_path        = cfg.classes_path
+    anchors_path        = cfg.anchors_path
+    anchors_mask        = cfg.anchors_mask
+    weights_path        = cfg.weights_path
+    logging_dir         = cfg.logging_dir
+    input_shape         = cfg.input_shape
+    num_channels        = cfg.num_channels
+    data_format         = cfg.data_format
 
     init_epoch          = 0
     freeze_epoch        = 50
@@ -102,7 +103,7 @@ if __name__ == "__main__":
 
     print('(Freeze Phase): Train on {} samples, val on {} samples, with batch size {}.'.format(num_train, num_valid, batch_size))
 
-    model.compile(optimizer=Adam(lr = lr), loss={'yolo_loss': lambda y_true, y_pred: y_pred})
+    model.compile(optimizer=Adam(learning_rate = lr), loss={'yolo_loss': lambda y_true, y_pred: y_pred})
 
     model.fit_generator(
         generator           = train_dataloader,
