@@ -1,3 +1,7 @@
 ve
 src/data/logs
 src/data/yolov3/yolo_weights.h5
+src/data/voc/2007
+src/data/voc/2012
+src/data/voc/2007_train.txt
+src/data/voc/2007_val.txt
