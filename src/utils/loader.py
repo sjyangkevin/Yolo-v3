@@ -91,8 +91,8 @@ class YoloDatasets(Sequence):
         box_data   = np.zeros((max_boxes, 5))
         if len(box) > 0:
             np.random.shuffle(box)
-            box[:, [0,2]] = box[:, [0,2]]*nw/iw + dx
-            box[:, [1,3]] = box[:, [1,3]]*nh/ih + dy
+            box[:, [0,2]] = box[:, [0,2]] * nw / iw + dx
+            box[:, [1,3]] = box[:, [1,3]] * nh / ih + dy
             # set the bounding box to image's boundary if the box is out
             box[:, 0:2][box[:, 0:2]<0]  = 0
             box[:, 2][box[:, 2]>w]      = w
@@ -101,7 +101,8 @@ class YoloDatasets(Sequence):
             box_h   = box[:, 3] - box[:, 1]
             # if width and height is less than 1, remove it, and treat it invalid
             box     = box[np.logical_and(box_w>1, box_h>1)]
-            if len(box)>max_boxes: box = box[:max_boxes]
+            if len(box)>max_boxes: 
+                box = box[:max_boxes]
             # take the first max boxes
             box_data[:len(box)] = box
         

@@ -127,7 +127,7 @@ def correct_boxes(box_xy, box_wh, input_shape, image_shape, is_padded):
         box_hw   *= scale
     
     box_mins  = box_yx - (box_hw / 2.)
-    box_maxes = box_yx - (box_hw / 2.)
+    box_maxes = box_yx + (box_hw / 2.)
 
     boxes  = K.concatenate([box_mins[..., 0:1], box_mins[..., 1:2], box_maxes[..., 0:1], box_maxes[..., 1:2]])
     boxes *= K.concatenate([image_shape, image_shape])
@@ -155,7 +155,7 @@ def decode_box(outputs, anchors, num_classes, input_shape, anchors_mask, max_box
     box_confidence  = K.concatenate(box_confidence, axis=0)
     box_class_probs = K.concatenate(box_class_probs, axis=0)
 
-    boxes = correct_boxes(box_xy, box_wh, input_shape, image_shape, is_padded)
+    boxes      = correct_boxes(box_xy, box_wh, input_shape, image_shape, is_padded)
     box_scores = box_confidence * box_class_probs
 
     mask             = box_scores >= confidence

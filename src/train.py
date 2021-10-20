@@ -1,12 +1,8 @@
 import tensorflow as tf
 from tensorflow.keras.callbacks import EarlyStopping, TensorBoard
 from tensorflow.keras.optimizers import Adam
-from tensorflow.python import eager
-from tensorflow.python.keras.backend import zeros
-from tensorflow.python.keras.engine.training import Model
 
 from model.yolov3 import yolo_body, get_train_model
-from utils.loss import loss_fn
 from utils.loader import YoloDatasets
 from utils.utils import get_anchors, get_classes
 from utils.callbacks import ExponentDecayScheduler, LossHistory, ModelCheckpoint
@@ -15,6 +11,11 @@ import config as cfg
 import os
 
 if __name__ == "__main__":
+
+    gpus = tf.config.experimental.list_physical_devices(device_type='GPU')
+    for gpu in gpus:
+        tf.config.experimental.set_memory_growth(gpu, True)
+
     eager_exec          = False
     
     train_annotation_path = cfg.train_annotation_path
@@ -30,11 +31,11 @@ if __name__ == "__main__":
     data_format         = cfg.data_format
 
     init_epoch          = 0
-    freeze_epoch        = 50
+    freeze_epoch        = 10
     freeze_batch_size   = 8
     freeze_lr           = 1e-3
 
-    unfrezze_epoch      = 100
+    unfrezze_epoch      = 15
     unfreeze_batch_size = 4
     unfreeze_lr         = 1e-4
     freeze_train        = True
@@ -49,8 +50,8 @@ if __name__ == "__main__":
         (input_shape[0], input_shape[1], num_channels), 
         num_classes, 
         len(anchors_mask), 
-        training=True, 
-        data_format=data_format
+        training    = True, 
+        data_format = data_format
     )
 
     if weights_path != "":
@@ -71,7 +72,7 @@ if __name__ == "__main__":
         period            = 1
     )
     reduce_lr       = ExponentDecayScheduler(decay_rate = 0.94, verbose = 1)
-    early_stopping  = EarlyStopping(monitor='val_loss', min_delta = 0, patience = 10, verbose = 1)
+    early_stopping  = EarlyStopping(monitor='val_loss', min_delta = 0, patience = 5, verbose = 1)
     loss_history    = LossHistory(logging_dir)
 
     with open(train_annotation_path) as f:
@@ -136,7 +137,7 @@ if __name__ == "__main__":
 
     print('(Unfreeze Phase): Train on {} samples, val on {} samples, with batch size {}.'.format(num_train, num_valid, batch_size))
 
-    model.compile(optimizer=Adam(lr = lr), loss={'yolo_loss': lambda y_true, y_pred: y_pred})
+    model.compile(optimizer=Adam(learning_rate = lr), loss={'yolo_loss': lambda y_true, y_pred: y_pred})
 
     model.fit_generator(
         generator           = train_dataloader,

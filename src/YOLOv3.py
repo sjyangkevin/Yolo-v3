@@ -93,6 +93,7 @@ class YOLO(object):
         input_image_shape = np.expand_dims(np.array([image.size[1], image.size[0]], dtype='float32'), 0)
 
         out_boxes, out_scores, out_classes = self.get_pred(image_data, input_image_shape) 
+        print(out_boxes)
         print('Found {} boxes for {}'.format(len(out_boxes), 'img'))
 
         font      = ImageFont.truetype(font=cfg.font_path, size=np.floor(3e-2 * image.size[1] + 0.5).astype('int32'))
