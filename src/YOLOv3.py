@@ -89,8 +89,8 @@ class YOLO(object):
     def detect_image(self, image):
         image             = convert_color(image)
         image_data        = resize_image(image, (self.input_shape[1], self.input_shape[0]), self.is_padded)
-        image_data        = np.expand_dims(preprocess_input(np.array(image_data, dtype='float32')), 0)
-        input_image_shape = np.expand_dims(np.array([image.size[1], image.size[0]], dtype='float32'), 0)
+        image_data        = np.expand_dims(preprocess_input(np.array(image_data, dtype='float64')), 0)
+        input_image_shape = np.expand_dims(np.array([image.size[1], image.size[0]], dtype='float64'), 0)
 
         out_boxes, out_scores, out_classes = self.get_pred(image_data, input_image_shape) 
         print(out_boxes)
@@ -133,9 +133,9 @@ class YOLO(object):
     def get_FPS(self, image, test_interval):
         image      = convert_color(image)
         image_data = resize_image(image, (self.input_shape[1], self.input_shape[0]), self.is_padded)
-        image_data = np.expand_dims(preprocess_input(np.array(image_data, dtype='float32')), 0)
+        image_data = np.expand_dims(preprocess_input(np.array(image_data, dtype='float64')), 0)
 
-        input_image_shape = np.expand_dims(np.array([image.size[1], image.size[0]], dtype='float32'), 0)
+        input_image_shape = np.expand_dims(np.array([image.size[1], image.size[0]], dtype='float64'), 0)
         out_boxes, out_scores, out_classes = self.get_pred(image_data, input_image_shape) 
 
         t1 = time.time()

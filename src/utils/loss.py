@@ -78,7 +78,7 @@ def loss_fn(args, input_shape, anchors, anchors_mask, num_classes, ignore_thresh
         confidence_loss = K.sum(confidence_loss)
         class_loss      = K.sum(class_loss)
 
-        num_pos += tf.maximum(K.sum(K.cast(object_mask, tf.float32)), 1)
+        num_pos += tf.maximum(K.sum(K.cast(object_mask, tf.float64)), 1)
         loss    += xy_loss + wh_loss + confidence_loss + class_loss
 
     loss = loss / num_pos

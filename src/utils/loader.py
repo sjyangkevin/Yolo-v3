@@ -85,7 +85,7 @@ class YoloDatasets(Sequence):
         image      = image.resize((nw, nh), Image.BICUBIC)
         new_image  = Image.new('RGB', (w, h), (128, 128, 128))
         new_image.paste(image, (dx, dy))
-        image_data = np.array(new_image, np.float32)
+        image_data = np.array(new_image, np.float64)
         # convert box coordinate to fit model's input size, and project it to
         # the correct position after resizing the image
         box_data   = np.zeros((max_boxes, 5))
@@ -111,7 +111,7 @@ class YoloDatasets(Sequence):
     def preprocess_true_boxes(self, true_boxes, input_shape, anchors, num_classes):
         assert (true_boxes[..., 4]<num_classes).all(), 'class id must be less than num_classes'
 
-        true_boxes  = np.array(true_boxes, dtype='float32')
+        true_boxes  = np.array(true_boxes, dtype='float64')
         input_shape = np.array(input_shape, dtype='int32')
 
         num_layers  = len(self.anchors_mask)
@@ -122,7 +122,7 @@ class YoloDatasets(Sequence):
     
         # zero-initialized array to store true boxes for different scales
         y_true = [np.zeros((m, grid_shapes[l][0], grid_shapes[l][1], len(self.anchors_mask[l]), 5 + num_classes),
-                    dtype='float32') for l in range(num_layers)]
+                    dtype='float64') for l in range(num_layers)]
         
         # shape is (m, n, 2) - batch_size, num_boxes, 2
         boxes_xy = (true_boxes[..., 0:2] + true_boxes[..., 2:4]) // 2
