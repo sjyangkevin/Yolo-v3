@@ -70,7 +70,7 @@ class YOLO(object):
             arguments = {
                 'anchors'       : self.anchors,
                 'num_classes'   : self.num_classes,
-                'input_shape'   : self.input_shape,
+                'input_shape'   : np.array(self.input_shape),
                 'anchors_mask'  : self.anchors_mask,
                 'confidence'    : self.confidence,
                 'nms_iou'       : self.nms_iou,
