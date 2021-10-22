@@ -32,12 +32,12 @@ if __name__ == "__main__":
 
     init_epoch          = 0
     freeze_epoch        = 10
-    freeze_batch_size   = 8
-    freeze_lr           = 1e-3
+    freeze_batch_size   = 16
+    freeze_lr           = 1e-4
 
     unfrezze_epoch      = 15
-    unfreeze_batch_size = 4
-    unfreeze_lr         = 1e-4
+    unfreeze_batch_size = 8
+    unfreeze_lr         = 1e-5
     freeze_train        = True
     freeze_layers       = 184
 
@@ -106,8 +106,8 @@ if __name__ == "__main__":
 
     model.compile(optimizer=Adam(learning_rate = lr), loss={'yolo_loss': lambda y_true, y_pred: y_pred})
 
-    model.fit_generator(
-        generator           = train_dataloader,
+    model.fit(
+        x                   = train_dataloader,
         steps_per_epoch     = epoch_step,
         validation_data     = valid_dataloader,
         validation_steps    = epoch_step_val,
@@ -139,8 +139,8 @@ if __name__ == "__main__":
 
     model.compile(optimizer=Adam(learning_rate = lr), loss={'yolo_loss': lambda y_true, y_pred: y_pred})
 
-    model.fit_generator(
-        generator           = train_dataloader,
+    model.fit(
+        x                   = train_dataloader,
         steps_per_epoch     = epoch_step,
         validation_data     = valid_dataloader,
         validation_steps    = epoch_step_val,

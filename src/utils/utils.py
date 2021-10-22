@@ -62,8 +62,8 @@ def get_anchors_and_decode(feats, anchors, num_classes, input_shape, calc_loss=F
     feats = K.reshape(feats, [-1, grid_shape[0], grid_shape[1], num_anchors, num_classes + 5])
 
     # formula for calculating box coordinate prediction from raw prediction
-    box_xy = (K.sigmoid(feats[..., :2]) + grid) / K.cast(grid_shape[::-1], K.dtype(feats))
-    box_wh = K.exp(feats[..., 2:4]) * anchors_tensor / K.cast(input_shape[::-1], K.dtype(feats))
+    box_xy = (K.sigmoid(feats[..., :2]) + grid) / K.cast(grid_shape[..., ::-1], K.dtype(feats))
+    box_wh = K.exp(feats[..., 2:4]) * anchors_tensor / K.cast(input_shape[..., ::-1], K.dtype(feats))
 
     # formula for calculating the confidence score and class score, just do sigmoid
     box_confidence  = K.sigmoid(feats[..., 4:5])
