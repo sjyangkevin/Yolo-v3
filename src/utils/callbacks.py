@@ -20,16 +20,16 @@ class LossHistory(Callback):
 
         os.makedirs(self.save_path)
 
-    def on_epoch_end(self, batch, logs={}):
+    def on_epoch_end(self, epoch, logs={}):
         self.losses.append(logs.get('loss'))
         self.val_loss.append(logs.get('val_loss'))
-        with open(os.path.join(self.save_path, "epoch_loss_" + str(self.time_str) + ".txt"), 'a') as f:
+        with open(os.path.join(self.save_path, "epoch_" + epoch + "_loss_" + str(self.time_str) + ".txt"), 'a') as f:
             f.write(str(logs.get('loss')))
             f.write("\n")
-        with open(os.path.join(self.save_path, "epoch_val_loss_" + str(self.time_str) + ".txt"), 'a') as f:
+        with open(os.path.join(self.save_path, "epoch_" + epoch + "_val_loss_" + str(self.time_str) + ".txt"), 'a') as f:
             f.write(str(logs.get('val_loss')))
             f.write("\n")
-        self.loss_plot()
+        # self.loss_plot()
     
     def loss_plot(self):
         iters = range(len(self.losses))
@@ -64,13 +64,12 @@ class ExponentDecayScheduler(Callback):
         super(ExponentDecayScheduler, self).__init__()
         self.decay_rate     = decay_rate
         self.verbose        = verbose
-        self.learning_rates = []
 
-    def on_epoch_end(self, batch, logs=None):
-        learning_rate = K.get_value(self.model.optimizer.lr) * self.decay_rate
-        K.set_value(self.model.optimizer.lr, learning_rate)
+    def on_epoch_end(self, epoch, logs=None):
+        learning_rate = K.get_value(self.model.optimizer.learning_rate) * self.decay_rate
+        K.set_value(self.model.optimizer.learning_rate, learning_rate)
         if self.verbose > 0:
-            print('Setting learning rate to %s.' % (learning_rate))
+            print('Epoch %s: Setting learning rate to %s.' % (epoch, learning_rate))
 
 class ModelCheckpoint(Callback):
     def __init__(self, filepath, monitor='val_loss', verbose=0,

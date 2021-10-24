@@ -93,8 +93,7 @@ class YOLO(object):
         input_image_shape = np.expand_dims(np.array([image.size[1], image.size[0]], dtype='float32'), 0)
 
         out_boxes, out_scores, out_classes = self.get_pred(image_data, input_image_shape) 
-        print(out_boxes)
-        print('Found {} boxes for {}'.format(len(out_boxes), 'img'))
+        # print('Found {} boxes for {}'.format(len(out_boxes), 'img'))
 
         font      = ImageFont.truetype(font=cfg.font_path, size=np.floor(3e-2 * image.size[1] + 0.5).astype('int32'))
         thickness = int(max((image.size[0] + image.size[1]) // np.mean(self.input_shape), 1))
@@ -115,7 +114,7 @@ class YOLO(object):
             draw = ImageDraw.Draw(image)
             label_size = draw.textsize(label, font)
             label = label.encode('utf-8')
-            print(label, top, left, bottom, right)
+            # print(label, top, left, bottom, right)
 
             if top - label_size[1] >= 0:
                 text_origin = np.array([left, top - label_size[1]])
