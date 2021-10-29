@@ -23,10 +23,10 @@ class LossHistory(Callback):
     def on_epoch_end(self, epoch, logs={}):
         self.losses.append(logs.get('loss'))
         self.val_loss.append(logs.get('val_loss'))
-        with open(os.path.join(self.save_path, "epoch_" + epoch + "_loss_" + str(self.time_str) + ".txt"), 'a') as f:
+        with open(os.path.join(self.save_path, "epoch_" + str(epoch) + "_loss_" + str(self.time_str) + ".txt"), 'a') as f:
             f.write(str(logs.get('loss')))
             f.write("\n")
-        with open(os.path.join(self.save_path, "epoch_" + epoch + "_val_loss_" + str(self.time_str) + ".txt"), 'a') as f:
+        with open(os.path.join(self.save_path, "epoch_" + str(epoch) + "_val_loss_" + str(self.time_str) + ".txt"), 'a') as f:
             f.write(str(logs.get('val_loss')))
             f.write("\n")
         # self.loss_plot()
