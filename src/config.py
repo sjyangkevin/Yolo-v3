@@ -34,7 +34,7 @@ nms_iou             = 0.5
 max_boxes           = 100
 
 train_annotation_path = "data/uav/uavdet_train.txt"
-valid_annotation_path = "data/uav/uavdet_train.txt"
+valid_annotation_path = "data/uav/uavdet_test.txt"
 
 eager_exec          = False
 
