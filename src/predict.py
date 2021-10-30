@@ -17,7 +17,7 @@ if __name__ == "__main__":
 
     model = YOLO()
 
-    mode  = "video"
+    mode  = "predict"
 
     if mode == "predict":
         while True:

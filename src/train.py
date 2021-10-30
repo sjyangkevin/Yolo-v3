@@ -31,11 +31,11 @@ if __name__ == "__main__":
     data_format         = cfg.data_format
 
     init_epoch          = 0
-    freeze_epoch        = 5
+    freeze_epoch        = 10
     freeze_batch_size   = 16
     freeze_lr           = 1e-4
 
-    unfrezze_epoch      = 15
+    unfrezze_epoch      = 5
     unfreeze_batch_size = 8
     unfreeze_lr         = 1e-5
     freeze_train        = True
