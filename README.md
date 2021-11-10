@@ -37,11 +37,12 @@ be two files: `train.txt` and `valid.txt`, each file should satisfy the followin
 
 YOLOV3：You Only Look Once目标检测模型在Tensorflow2当中的实现: [bubbliiiing/yolo3-tf2](https://github.com/bubbliiiing/yolo3-tf2)  
 Yolo v3 Object Detection in Tensorflow: [HEARTKILLA](https://www.kaggle.com/aruchomu/yolo-v3-object-detection-in-tensorflow)  
+UAVDT (Unmanned Aerial Vehicle Benchmark Object Detection and Tracking): [UAVDT](https://paperswithcode.com/dataset/uavdt)
 
 # Demo
 
 * Experiment with Highway Traffic Car (Type) Detection with the pre-trained weight from COCO17  
 <img src="https://github.com/sjyangkevin/Yolo-v3/blob/main/src/data/images/highway_traffic.png" alt="Highway Traffic Car Type" style="width:800px;height:450px;" />
 
-* Experiment with Car (Type) Detection during night-time with the pre-trained weight from COCO17  
+* Experiment with Car (Type) Detection during night-time with the pre-trained weight from COCO17 (on CPU)  
 <img src="https://github.com/sjyangkevin/Yolo-v3/blob/main/src/data/images/night_time_m1101.gif" alt="Night-time Car Detection" style="width:800px;height:450px;" />
