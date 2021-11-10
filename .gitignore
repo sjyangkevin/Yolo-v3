@@ -4,5 +4,6 @@ src/data/yolov3/yolo_weights.h5
 src/data/voc
 src/data/images
 src/data/videos/day_time_m1401.avi
+src/data/videos/day_time_m1401_out.avi
 src/data/videos/night_time_m1101.avi
 src/data/coco
