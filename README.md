@@ -1,15 +1,18 @@
 # YoloV3: You Only Look Once - TensorFlow 2  
 
+# Table of Content
+
+1. <strong> Pre-trained Model </strong>
+2. <strong> Run Prediction on Images and Videos </strong>  
+3. <strong> Run Training on Custom Datasets </strong>
+4. <strong> Reference </strong>
+5. <strong> Demo </strong>
+
 # Pre-trained Model
 
 | Datasets | Files | Input Size |
 | :--- | :----: | ---: |
 | COCO 2017 | [weights.h5](https://github.com/bubbliiiing/yolo3-tf2/releases/download/v1.0/yolo_weights.h5) | 416 x 416 |
-
-# Table of Content
-
-1. <strong> Run Prediction on Images and Videos </strong>  
-2. <strong> Run Training on Custom Datasets </strong>
 
 # Run Prediction on Images and Videos
 1. Download an unzip the weight file, and put it under the path `src/data/yolov3/`, and modify `src/config.py` as necessary
@@ -34,3 +37,11 @@ be two files: `train.txt` and `valid.txt`, each file should satisfy the followin
 
 YOLOV3：You Only Look Once目标检测模型在Tensorflow2当中的实现: [bubbliiiing/yolo3-tf2](https://github.com/bubbliiiing/yolo3-tf2)  
 Yolo v3 Object Detection in Tensorflow: [HEARTKILLA](https://www.kaggle.com/aruchomu/yolo-v3-object-detection-in-tensorflow)  
+
+# Demo
+
+* Experiment with Highway Traffic Car (Type) Detection with the pre-trained weight from COCO17  
+<img src="https://github.com/sjyangkevin/Yolo-v3/blob/main/src/data/images/highway_traffic.png" alt="Highway Traffic Car Type" style="width:800px;height:450px;" />
+
+* Experiment with Car (Type) Detection during night-time with the pre-trained weight from COCO17  
+<img src="https://github.com/sjyangkevin/Yolo-v3/blob/main/src/data/images/night_time_m1101.gif" alt="Night-time Car Detection" style="width:800px;height:450px;" />
