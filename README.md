@@ -13,7 +13,7 @@
 
 # Run Prediction on Images and Videos
 1. Download an unzip the weight file, and put it under the path `src/data/yolov3/`, and modify `src/config.py` as necessary
-2. In `predict.py`, modify the variable `mode` to either `"image"` or `"video"` for running prediction on images and videos respectively.
+2. In `predict.py`, modify the variable `mode` to either `"predict"` or `"video"` for running prediction on images and videos respectively.
 If it is running on video, then the `video_path`, `video_save_path`, and `video_fps` need to be set.
 3. Open command line or terminal, and go to the `/src` directory, and type in and run `python predict.py`
 
