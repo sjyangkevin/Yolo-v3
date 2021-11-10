@@ -11,13 +11,13 @@ if __name__ == "__main__":
     for gpu in gpus:
         tf.config.experimental.set_memory_growth(gpu, True)
     
-    video_path      = "data/videos/toronto_street_clip.mp4"
-    video_save_path = "data/videos/toronto_street_clip_out.mp4"
+    video_path      = "data/videos/night_time_m1101.avi"
+    video_save_path = "data/videos/night_time_m1101_out.avi"
     video_fps       = 25.0
 
     model = YOLO()
 
-    mode  = "predict"
+    mode  = "video"
 
     if mode == "predict":
         while True:
